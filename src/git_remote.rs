@@ -32,19 +32,20 @@ impl GitRemote {
         F: FnOnce(&mut git2::RemoteConnection) -> Result<T>,
     {
         let mut remote = self.repo.remote_anonymous(&self.url)?;
+        let auth_token = self.auth_token.clone();
+        let git_config = self.repo.config()?;
+        let auth = auth_git2::GitAuthenticator::default();
+        let mut auth_credentials = auth.credentials(&git_config);
         let mut cb = git2::RemoteCallbacks::new();
         cb.credentials(move |url, username, allowed_types| {
             debug!(
                 "remote callback: url={}, username={:?}, allowed={:?}",
                 url, username, allowed_types
             );
-            if allowed_types.is_ssh_custom()
-                || allowed_types.is_ssh_key()
-                || allowed_types.is_ssh_interactive()
-            {
-                git2::Cred::ssh_key_from_agent(username.unwrap())
+            if allowed_types.is_user_pass_plaintext() {
+                git2::Cred::userpass_plaintext("spr", &auth_token)
             } else {
-                git2::Cred::userpass_plaintext("spr", &self.auth_token)
+                auth_credentials(url, username, allowed_types)
             }
         });
 
