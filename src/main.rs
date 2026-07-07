@@ -142,6 +142,10 @@ pub async fn spr() -> Result<()> {
         .get_bool("spr.createDependencyComments")
         .ok()
         .unwrap_or(false);
+    let omit_reviewers_section = git_config
+        .get_bool("spr.omitReviewersSection")
+        .ok()
+        .unwrap_or(false);
 
     let github_auth_token = match cli.github_auth_token {
         Some(v) => Ok(v),
@@ -157,6 +161,7 @@ pub async fn spr() -> Result<()> {
         require_approval,
         require_test_plan,
         create_dependency_comments,
+        omit_reviewers_section,
     );
     debug!("config: {:?}", config);
 

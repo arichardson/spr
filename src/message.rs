@@ -184,17 +184,30 @@ pub fn build_github_body(section_texts: &MessageSectionsMap) -> String {
 
 pub fn build_github_body_for_merging(
     section_texts: &MessageSectionsMap,
+    config: &crate::config::Config,
 ) -> String {
-    build_message(
-        section_texts,
-        &[
-            MessageSection::Summary,
-            MessageSection::TestPlan,
-            MessageSection::Reviewers,
-            MessageSection::ReviewedBy,
-            MessageSection::PullRequest,
-        ],
-    )
+    if config.omit_reviewers_section {
+        build_message(
+            section_texts,
+            &[
+                MessageSection::Summary,
+                MessageSection::TestPlan,
+                MessageSection::ReviewedBy,
+                MessageSection::PullRequest,
+            ],
+        )
+    } else {
+        build_message(
+            section_texts,
+            &[
+                MessageSection::Summary,
+                MessageSection::TestPlan,
+                MessageSection::Reviewers,
+                MessageSection::ReviewedBy,
+                MessageSection::PullRequest,
+            ],
+        )
+    }
 }
 
 pub fn validate_commit_message(

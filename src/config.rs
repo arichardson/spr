@@ -19,6 +19,7 @@ pub struct Config {
     pub require_approval: bool,
     pub require_test_plan: bool,
     pub create_dependency_comments: bool,
+    pub omit_reviewers_section: bool,
 }
 
 impl Config {
@@ -32,6 +33,7 @@ impl Config {
         require_approval: bool,
         require_test_plan: bool,
         create_dependency_comments: bool,
+        omit_reviewers_section: bool,
     ) -> Self {
         let master_ref =
             GitHubBranch::new_from_branch_name(&master_branch, &master_branch);
@@ -44,6 +46,7 @@ impl Config {
             require_approval,
             require_test_plan,
             create_dependency_comments,
+            omit_reviewers_section,
         }
     }
 
@@ -110,6 +113,7 @@ mod tests {
             false,
             true,
             true,
+            false,
         )
     }
 

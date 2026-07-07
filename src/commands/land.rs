@@ -278,7 +278,7 @@ pub async fn land(
                 .merge(pull_request_number)
                 .method(octocrab::params::pulls::MergeMethod::Squash)
                 .title(pull_request.title)
-                .message(build_github_body_for_merging(&pull_request.sections))
+                .message(build_github_body_for_merging(&pull_request.sections, config))
                 .sha(format!("{}", pr_head_oid))
                 .send()
                 .await
