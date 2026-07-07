@@ -152,7 +152,7 @@ pub async fn diff(
     let mut selected_indices = HashSet::new();
 
     for (i, (prepared_commit, pull_request_task)) in
-        zip(prepared_commits.iter_mut(), pull_request_tasks.into_iter())
+        zip(prepared_commits.iter_mut(), pull_request_tasks)
             .enumerate()
     {
         if result.is_err() {
@@ -278,16 +278,14 @@ fn build_dependency_body(
     if let Some(body) = existing_body {
         let re = lazy_regex::regex!(r"^- #(\d+)");
         for line in body.lines() {
-            if let Some(caps) = re.captures(line.trim()) {
-                if let Ok(num) = caps[1].parse::<u64>() {
-                    if !current_stack_prs.contains(&num)
-                        && Some(num) != prepared_commits[i].pull_request_number
-                        && !seen.contains(&num)
-                    {
-                        dependencies.push(format!("- #{}", num));
-                        seen.insert(num);
-                    }
-                }
+            if let Some(caps) = re.captures(line.trim())
+                && let Ok(num) = caps[1].parse::<u64>()
+                && !current_stack_prs.contains(&num)
+                && Some(num) != prepared_commits[i].pull_request_number
+                && !seen.contains(&num)
+            {
+                dependencies.push(format!("- #{}", num));
+                seen.insert(num);
             }
         }
     }
@@ -312,13 +310,12 @@ fn build_dependency_body(
         if let Some(body) = existing_body {
             if let (Some(start), Some(end)) =
                 (body.find(LIST_START_MARKER), body.find(LIST_END_MARKER))
+                && start < end
             {
-                if start < end {
-                    let mut new_body = body[..start].to_string();
-                    new_body.push_str(&list_with_markers);
-                    new_body.push_str(&body[end + LIST_END_MARKER.len()..]);
-                    return Some(new_body);
-                }
+                let mut new_body = body[..start].to_string();
+                new_body.push_str(&list_with_markers);
+                new_body.push_str(&body[end + LIST_END_MARKER.len()..]);
+                return Some(new_body);
             }
             // If markers not found or invalid, append to the end
             let mut new_body = body.trim_end().to_string();

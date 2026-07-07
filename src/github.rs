@@ -468,11 +468,11 @@ impl GitHub {
             .await?;
 
         for comment in comments {
-            if let Some(body) = comment.body {
-                if body.contains(marker) {
-                    debug!("Found matching comment: {}", comment.id.0);
-                    return Ok((comment.id.0, body));
-                }
+            if let Some(body) = comment.body
+                && body.contains(marker)
+            {
+                debug!("Found matching comment: {}", comment.id.0);
+                return Ok((comment.id.0, body));
             }
         }
 
